@@ -9,6 +9,9 @@ public class Word
     public LanguageCode Language { get; private set; }
     public CefrLevel Level { get; private set; }
     public DateTime AddedAt { get; private set; }
+    public List<WordTranslation> SourceTranslations { get; private set; }
+    public List<WordTranslation> TargetTranslations { get; private set; }
+    public List<UserWordProgress> UserWordProgresses { get; private set; }
 
     public Word(string text, LanguageCode language, CefrLevel level = CefrLevel.A1)
     {
@@ -18,5 +21,8 @@ public class Word
         Language = language;
         Level = level;
         AddedAt = DateTime.UtcNow;
+        UserWordProgresses = [];
+        SourceTranslations = [];
+        TargetTranslations = [];
     }
 }

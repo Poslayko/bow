@@ -10,6 +10,8 @@ public class UserWordProgress
     public LearningStage Stage { get; private set; }
     public DateTime NextReviewAt { get; private set; }
     public DateTime? LastReviewedAt { get; private set; }
+    public User User { get; private set; } = null!;
+    public Word Word { get; private set; } = null!;
 
     public UserWordProgress(int userId, int wordId, DateTime nextReviewAt)
     {

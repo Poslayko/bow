@@ -1,6 +1,6 @@
 @bow.Api_HostAddress = http://localhost:5194
 
-GET {{bow.Api_HostAddress}}/weatherforecast/
+GET {{bow.Api_HostAddress}}/health
 Accept: application/json
 
 ###
