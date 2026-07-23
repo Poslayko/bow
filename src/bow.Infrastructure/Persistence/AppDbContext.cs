@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using bow.Domain.Entities;
+using bow.Application.Common.Interfaces;
 
 namespace bow.Infrastructure.Persistence;
 
-public sealed class AppDbContext : DbContext
+public sealed class AppDbContext : DbContext, IUnitOfWork
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<UserWordProgress> UserWordProgresses => Set<UserWordProgress>();

@@ -24,6 +24,8 @@ public static class DependencyInjection
                 .UseSnakeCaseNamingConvention());
         
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUnitOfWork>(
+            provider => provider.GetRequiredService<AppDbContext>());
 
         return services;
     }
