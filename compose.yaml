@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: bow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bow
+      POSTGRES_USER: bow
+      POSTGRES_PASSWORD: small_password
+    ports:
+    - "5432:5432"
+    volumes:
+    - bow_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bow -d bow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+ bow_postgres_data:

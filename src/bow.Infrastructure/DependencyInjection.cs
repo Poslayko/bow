@@ -1,4 +1,6 @@
+using bow.Application.Common.Interfaces;
 using bow.Infrastructure.Persistence;
+using bow.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +22,8 @@ public static class DependencyInjection
             options
                 .UseNpgsql(connectionString)
                 .UseSnakeCaseNamingConvention());
+        
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }
