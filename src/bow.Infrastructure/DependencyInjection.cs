@@ -1,4 +1,5 @@
 using bow.Application.Common.Interfaces;
+using bow.Application.Users.Register;
 using bow.Infrastructure.Persistence;
 using bow.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUnitOfWork>(
             provider => provider.GetRequiredService<AppDbContext>());
+        services.AddScoped<RegisterUserHandler>();
 
         return services;
     }
