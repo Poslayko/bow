@@ -11,7 +11,9 @@ public class User
     public LanguageCode? LearningLanguage { get; private set; }
     public CefrLevel? LearningLevel { get; private set; }
     public DateTime RegisteredAt { get; private set; }
-    public List<UserWordProgress> UserWordProgresses { get; private set; }
+
+    private readonly List<UserVocabularyProgress> _userVocabularyItemProgresses = [];
+    public IReadOnlyCollection<UserVocabularyProgress> UserVocabularyItemProgresses => _userVocabularyItemProgresses;
 
     public User(long telegramId, string? displayName = null)
     {   
@@ -21,6 +23,5 @@ public class User
         TelegramId = telegramId;
         DisplayName = displayName;
         RegisteredAt = DateTime.UtcNow;
-        UserWordProgresses = [];
     }
 }

@@ -24,8 +24,12 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasConversion<string>()
             .HasMaxLength(2);
 
-        builder.HasMany(x => x.UserWordProgresses)
+        builder.HasMany(x => x.UserVocabularyItemProgresses)
             .WithOne(x => x.User)
-            .HasForeignKey(x => x.UserId);
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(x => x.UserVocabularyItemProgresses)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

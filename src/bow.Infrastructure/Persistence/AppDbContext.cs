@@ -7,9 +7,9 @@ namespace bow.Infrastructure.Persistence;
 public sealed class AppDbContext : DbContext, IUnitOfWork
 {
     public DbSet<User> Users => Set<User>();
-    public DbSet<UserWordProgress> UserWordProgresses => Set<UserWordProgress>();
-    public DbSet<Word> Words => Set<Word>();
-    public DbSet<WordTranslation> WordTranslations => Set<WordTranslation>();
+    public DbSet<UserVocabularyProgress> UserVocabularyProgresses => Set<UserVocabularyProgress>();
+    public DbSet<VocabularyItem> VocabularyItems => Set<VocabularyItem>();
+    public DbSet<VocabularyTranslation> VocabularyTranslations => Set<VocabularyTranslation>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {

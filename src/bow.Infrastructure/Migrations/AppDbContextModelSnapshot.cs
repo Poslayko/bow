@@ -2,21 +2,18 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using bow.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace bow.Infrastructure.Persistence.Migrations
+namespace bow.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260722201312_InitialCreate")]
-    partial class InitialCreate
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,7 +69,7 @@ namespace bow.Infrastructure.Persistence.Migrations
                     b.ToTable("users", (string)null);
                 });
 
-            modelBuilder.Entity("bow.Domain.Entities.UserWordProgress", b =>
+            modelBuilder.Entity("bow.Domain.Entities.UserVocabularyProgress", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,27 +96,27 @@ namespace bow.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("user_id");
 
-                    b.Property<int>("WordId")
+                    b.Property<int>("VocabularyItemId")
                         .HasColumnType("integer")
-                        .HasColumnName("word_id");
+                        .HasColumnName("vocabulary_item_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_user_word_progresses");
+                        .HasName("pk_user_vocabulary_progresses");
 
-                    b.HasIndex("WordId")
-                        .HasDatabaseName("ix_user_word_progresses_word_id");
+                    b.HasIndex("VocabularyItemId")
+                        .HasDatabaseName("ix_user_vocabulary_progresses_vocabulary_item_id");
 
                     b.HasIndex("UserId", "NextReviewAt")
-                        .HasDatabaseName("ix_user_word_progresses_user_id_next_review_at");
+                        .HasDatabaseName("ix_user_vocabulary_progresses_user_id_next_review_at");
 
-                    b.HasIndex("UserId", "WordId")
+                    b.HasIndex("UserId", "VocabularyItemId")
                         .IsUnique()
-                        .HasDatabaseName("ix_user_word_progresses_user_id_word_id");
+                        .HasDatabaseName("ix_user_vocabulary_progresses_user_id_vocabulary_item_id");
 
-                    b.ToTable("user_word_progresses", (string)null);
+                    b.ToTable("user_vocabulary_progresses", (string)null);
                 });
 
-            modelBuilder.Entity("bow.Domain.Entities.Word", b =>
+            modelBuilder.Entity("bow.Domain.Entities.VocabularyItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -138,31 +135,35 @@ namespace bow.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(2)")
                         .HasColumnName("language");
 
-                    b.Property<string>("Level")
+                    b.Property<string>("NormalizedText")
                         .IsRequired()
-                        .HasMaxLength(2)
-                        .HasColumnType("character varying(2)")
-                        .HasColumnName("level");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("normalized_text");
 
                     b.Property<string>("Text")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
                         .HasColumnName("text");
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type");
+
                     b.HasKey("Id")
-                        .HasName("pk_words");
+                        .HasName("pk_vocabulary_items");
 
-                    b.HasIndex("Text")
-                        .HasDatabaseName("ix_words_text");
+                    b.HasIndex("Language", "NormalizedText")
+                        .IsUnique()
+                        .HasDatabaseName("ix_vocabulary_items_language_normalized_text");
 
-                    b.HasIndex("Language", "Level", "Text")
-                        .HasDatabaseName("ix_words_language_level_text");
-
-                    b.ToTable("words", (string)null);
+                    b.ToTable("vocabulary_items", (string)null);
                 });
 
-            modelBuilder.Entity("bow.Domain.Entities.WordTranslation", b =>
+            modelBuilder.Entity("bow.Domain.Entities.VocabularyTranslation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -175,81 +176,87 @@ namespace bow.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("added_at");
 
-                    b.Property<int>("SourceWordId")
-                        .HasColumnType("integer")
-                        .HasColumnName("source_word_id");
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("level");
 
-                    b.Property<int>("TargetWordId")
+                    b.Property<int>("TranslationFromId")
                         .HasColumnType("integer")
-                        .HasColumnName("target_word_id");
+                        .HasColumnName("translation_from_id");
+
+                    b.Property<int>("TranslationToId")
+                        .HasColumnType("integer")
+                        .HasColumnName("translation_to_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_word_translations");
+                        .HasName("pk_vocabulary_translations");
 
-                    b.HasIndex("TargetWordId")
-                        .HasDatabaseName("ix_word_translations_target_word_id");
+                    b.HasIndex("TranslationToId")
+                        .HasDatabaseName("ix_vocabulary_translations_translation_to_id");
 
-                    b.HasIndex("SourceWordId", "TargetWordId")
+                    b.HasIndex("TranslationFromId", "TranslationToId")
                         .IsUnique()
-                        .HasDatabaseName("ix_word_translations_source_word_id_target_word_id");
+                        .HasDatabaseName("ix_vocabulary_translations_translation_from_id_translation_to_");
 
-                    b.ToTable("word_translations", (string)null);
+                    b.ToTable("vocabulary_translations", (string)null);
                 });
 
-            modelBuilder.Entity("bow.Domain.Entities.UserWordProgress", b =>
+            modelBuilder.Entity("bow.Domain.Entities.UserVocabularyProgress", b =>
                 {
                     b.HasOne("bow.Domain.Entities.User", "User")
-                        .WithMany("UserWordProgresses")
+                        .WithMany("UserVocabularyItemProgresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_word_progresses_users_user_id");
+                        .HasConstraintName("fk_user_vocabulary_progresses_users_user_id");
 
-                    b.HasOne("bow.Domain.Entities.Word", "Word")
-                        .WithMany("UserWordProgresses")
-                        .HasForeignKey("WordId")
+                    b.HasOne("bow.Domain.Entities.VocabularyItem", "VocabularyItem")
+                        .WithMany("UserVocabularyItemProgresses")
+                        .HasForeignKey("VocabularyItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_word_progresses_words_word_id");
+                        .HasConstraintName("fk_user_vocabulary_progresses_vocabulary_items_vocabulary_item");
 
                     b.Navigation("User");
 
-                    b.Navigation("Word");
+                    b.Navigation("VocabularyItem");
                 });
 
-            modelBuilder.Entity("bow.Domain.Entities.WordTranslation", b =>
+            modelBuilder.Entity("bow.Domain.Entities.VocabularyTranslation", b =>
                 {
-                    b.HasOne("bow.Domain.Entities.Word", "SourceWord")
+                    b.HasOne("bow.Domain.Entities.VocabularyItem", "TranslationFrom")
                         .WithMany("SourceTranslations")
-                        .HasForeignKey("SourceWordId")
+                        .HasForeignKey("TranslationFromId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_word_translations_words_source_word_id");
+                        .HasConstraintName("fk_vocabulary_translations_vocabulary_items_translation_from_id");
 
-                    b.HasOne("bow.Domain.Entities.Word", "TargetWord")
+                    b.HasOne("bow.Domain.Entities.VocabularyItem", "TranslationTo")
                         .WithMany("TargetTranslations")
-                        .HasForeignKey("TargetWordId")
+                        .HasForeignKey("TranslationToId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_word_translations_words_target_word_id");
+                        .HasConstraintName("fk_vocabulary_translations_vocabulary_items_translation_to_id");
 
-                    b.Navigation("SourceWord");
+                    b.Navigation("TranslationFrom");
 
-                    b.Navigation("TargetWord");
+                    b.Navigation("TranslationTo");
                 });
 
             modelBuilder.Entity("bow.Domain.Entities.User", b =>
                 {
-                    b.Navigation("UserWordProgresses");
+                    b.Navigation("UserVocabularyItemProgresses");
                 });
 
-            modelBuilder.Entity("bow.Domain.Entities.Word", b =>
+            modelBuilder.Entity("bow.Domain.Entities.VocabularyItem", b =>
                 {
                     b.Navigation("SourceTranslations");
 
                     b.Navigation("TargetTranslations");
 
-                    b.Navigation("UserWordProgresses");
+                    b.Navigation("UserVocabularyItemProgresses");
                 });
 #pragma warning restore 612, 618
         }
