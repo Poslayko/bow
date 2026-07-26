@@ -8,7 +8,7 @@ public static class RegisterUserEndpoint
         this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-            "users/register",
+            "/api/v1/users",
             HandleAsync
         );
 
@@ -31,7 +31,7 @@ public static class RegisterUserEndpoint
         if (result.IsCreated)
         {
             return Results.Created(
-                $"/users/{result.UserId}",
+                $"/api/v1/users/{result.UserId}",
                 response);
         }
 
