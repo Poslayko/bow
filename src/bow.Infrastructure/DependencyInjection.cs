@@ -24,6 +24,7 @@ public static class DependencyInjection
                 .UseSnakeCaseNamingConvention());
         
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IVocabularyItemRepository, VocabularyItemRepository>();
         services.AddScoped<IUnitOfWork>(
             provider => provider.GetRequiredService<AppDbContext>());
 

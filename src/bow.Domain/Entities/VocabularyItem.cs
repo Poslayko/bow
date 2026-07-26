@@ -22,12 +22,18 @@ public class VocabularyItem
     public VocabularyItem(string text, LanguageCode language, 
         VocabularyItemType type = VocabularyItemType.Word)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(text);
+        NormalizedText = NormalizeText(text);
 
         Text = text.Trim();
-        NormalizedText = Text.ToLowerInvariant();
         Language = language;
         AddedAt = DateTime.UtcNow;
         Type = type;
+    }
+
+    public static string NormalizeText(string text)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(text);
+
+        return text.Trim().ToLowerInvariant();
     }
 }
