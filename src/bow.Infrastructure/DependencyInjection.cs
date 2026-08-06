@@ -1,4 +1,5 @@
 using bow.Application.Common.Interfaces;
+using bow.Domain.Entities;
 using bow.Infrastructure.Persistence;
 using bow.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,7 @@ public static class DependencyInjection
         
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IVocabularyItemRepository, VocabularyItemRepository>();
+        services.AddScoped<IVocabularyTranslationRepository, VocabularyTranslationRepository>();
         services.AddScoped<IUnitOfWork>(
             provider => provider.GetRequiredService<AppDbContext>());
 
