@@ -2,7 +2,7 @@ using bow.Domain.Enums;
 
 namespace bow.Domain.Entities;
 
-public class VocabularyTranslation
+public sealed class VocabularyTranslation
 {
     public int Id { get; private set; }
     public int TranslationFromId { get; private set; }
@@ -12,19 +12,17 @@ public class VocabularyTranslation
     public VocabularyItem TranslationFrom { get; private set; } = null!;
     public VocabularyItem TranslationTo { get; private set; } = null!;
 
-    public VocabularyTranslation(int translationFromId, int translationToId, CefrLevel level = CefrLevel.A1)
+    public VocabularyTranslation(VocabularyItem sourceItem, VocabularyItem targetItem, 
+        CefrLevel level = CefrLevel.A1)
     {
-        if (translationFromId <= 0)
-            throw new ArgumentOutOfRangeException(nameof(translationFromId));
+        ArgumentNullException.ThrowIfNull(sourceItem);
+        ArgumentNullException.ThrowIfNull(targetItem);
 
-        if (translationToId <= 0)
-            throw new ArgumentOutOfRangeException(nameof(translationToId));
+        if (ReferenceEquals(sourceItem, targetItem))
+            throw new ArgumentException("Translation items cannot be the same.");
 
-        if (translationFromId == translationToId)
-            throw new ArgumentException("TranslationFrom to TranslationTo cannot be the same.");
-
-        TranslationFromId = translationFromId;
-        TranslationToId = translationToId;
+        TranslationFrom = sourceItem;
+        TranslationTo = targetItem;
         AddedAt = DateTime.UtcNow;
         Level = level;
     }

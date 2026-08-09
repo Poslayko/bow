@@ -19,12 +19,12 @@ internal sealed class VocabularyTranslationRepository : IVocabularyTranslationRe
         await _db.VocabularyTranslations.AddAsync(vocabularyTranslation, cancellationToken);
     }
 
-    public Task<bool> ExistsAsync(int sourceItemId, int targetItemId,
-        CancellationToken cancellationToken = default)
+    public async Task<VocabularyTranslation?> GetBySourceAndTargetAsync(int sourceItemId, 
+        int targetItemId, CancellationToken cancellationToken = default)
     {
-        return _db.VocabularyTranslations.AnyAsync(x => 
-            x.TranslationFromId == sourceItemId && x.TranslationToId == targetItemId,
-            cancellationToken);
+        return await _db.VocabularyTranslations
+            .SingleOrDefaultAsync(x => x.TranslationFromId == sourceItemId && 
+                x.TranslationToId == targetItemId, cancellationToken);
     }
 
     public async Task<IReadOnlyList<VocabularyTranslation>> GetBySourceItemIdAsync(
@@ -36,4 +36,6 @@ internal sealed class VocabularyTranslationRepository : IVocabularyTranslationRe
             .ToListAsync(cancellationToken);
             
     }
+
+
 }
