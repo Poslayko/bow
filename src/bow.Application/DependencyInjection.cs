@@ -12,7 +12,7 @@ public static class DependencyInjection
         services.AddScoped<RegisterUserHandler>();
         services.AddScoped<AddVocabularyItemHandler>();
         services.AddScoped<AddVocabularyTranslationHandler>();
-
+        
         return services;
     }
 }

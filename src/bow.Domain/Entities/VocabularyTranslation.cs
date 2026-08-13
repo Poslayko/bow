@@ -11,6 +11,10 @@ public sealed class VocabularyTranslation
     public DateTime AddedAt { get; private set; }
     public VocabularyItem TranslationFrom { get; private set; } = null!;
     public VocabularyItem TranslationTo { get; private set; } = null!;
+    public VocabularyTranslation()
+    {
+
+    }
 
     public VocabularyTranslation(VocabularyItem sourceItem, VocabularyItem targetItem, 
         CefrLevel level = CefrLevel.A1)

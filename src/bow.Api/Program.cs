@@ -3,6 +3,7 @@ using bow.Application;
 using bow.Api.Endpoints.Users;
 using bow.Api.Endpoints.ItemVocabulary;
 using System.Text.Json.Serialization;
+using bow.Api.Endpoints.VocabularyTranslations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +17,16 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 app.MapRegisterUserEndpoint();
 app.MapAddVocabularyItemEndpoint();
+app.MapAddVocabularyTranslationEndpoint();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
