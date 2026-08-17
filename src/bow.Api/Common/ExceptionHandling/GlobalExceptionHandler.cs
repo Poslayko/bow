@@ -1,8 +1,18 @@
+using bow.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
+namespace bow.Api.Common.ExceptionHandling;
+
 public sealed class GlobalExceptionHandler : IExceptionHandler
 {
+    private readonly ILogger<GlobalExceptionHandler> _logger;
+
+    public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
+    {
+        _logger = logger;
+    }
+
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext, 
         Exception exception, 
@@ -11,8 +21,19 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         var statusCode = exception switch
         {
             ArgumentException => StatusCodes.Status400BadRequest,
+            NotFoundException => StatusCodes.Status404NotFound,
             _ => StatusCodes.Status500InternalServerError
         };
+
+        if (statusCode == 500)
+        {
+            _logger.LogError(
+                exception,
+                "Unhandled exception occurred while processing request {Method} {Path}",
+                httpContext.Request.Method,
+                httpContext.Request.Path
+            );
+        }
 
         var problemDetails = new ProblemDetails
         {
@@ -20,7 +41,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             Title = GetTitle(statusCode),
         };
 
-        if (statusCode == 400)
+        if (statusCode == 400 || statusCode == 404)
         {
             problemDetails.Detail = exception.Message;
         }
@@ -40,8 +61,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         return statusCode switch
         {
             StatusCodes.Status400BadRequest => "Bad request",
-            StatusCodes.Status409Conflict => "Conflict",
-            StatusCodes.Status501NotImplemented => "Not implemented",
+            StatusCodes.Status404NotFound => "Not found",
             _ => "Server error"
         };
     }

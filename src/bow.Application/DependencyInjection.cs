@@ -1,6 +1,7 @@
 using bow.Application.Users.Register;
 using bow.Application.VocabularyItems.Add;
 using bow.Application.VocabularyTranslations.Add;
+using bow.Application.VocabularyTranslations.GetBySource;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace bow.Application;
@@ -12,6 +13,7 @@ public static class DependencyInjection
         services.AddScoped<RegisterUserHandler>();
         services.AddScoped<AddVocabularyItemHandler>();
         services.AddScoped<AddVocabularyTranslationHandler>();
+        services.AddScoped<GetVocabularyTranslationHandler>();
         
         return services;
     }

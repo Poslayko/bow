@@ -31,11 +31,11 @@ internal sealed class VocabularyTranslationRepository : IVocabularyTranslationRe
         int sourceItemId, 
         CancellationToken cancellationToken = default)
     {
+
         return await _db.VocabularyTranslations
+            .AsNoTracking()
             .Where(x => x.TranslationFromId == sourceItemId)
+            .Include(x => x.TranslationTo)
             .ToListAsync(cancellationToken);
-            
     }
-
-
 }
