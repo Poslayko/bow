@@ -28,6 +28,12 @@ public class VocabularyItemRepository : IVocabularyItemRepository
             x.NormalizedText == normalizedText, cancellationToken);
     }
 
+    public Task<VocabularyItem?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return _appDbContext.VocabularyItems
+            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+    }
+
     public Task<VocabularyItem?> GetByTextAndLanguageAsync(string text, 
         LanguageCode language, CancellationToken cancellationToken = default)
     {

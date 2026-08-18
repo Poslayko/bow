@@ -27,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IVocabularyItemRepository, VocabularyItemRepository>();
         services.AddScoped<IVocabularyTranslationRepository, VocabularyTranslationRepository>();
+        services.AddScoped<IUserVocabularyProgressRepository, UserVocabularyProgressRepository>();
         services.AddScoped<IUnitOfWork>(
             provider => provider.GetRequiredService<AppDbContext>());
 

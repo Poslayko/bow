@@ -5,6 +5,11 @@ namespace bow.Application.Common.Interfaces;
 
 public interface IVocabularyItemRepository
 {
+    Task<VocabularyItem?> GetByIdAsync(
+        int id,
+        CancellationToken cancellationToken = default
+    );
+
     Task<VocabularyItem?> GetByTextAndLanguageAsync(
         string text,
         LanguageCode language,
