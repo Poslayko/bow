@@ -1,5 +1,6 @@
 using bow.Application.Common.Interfaces;
 using bow.Domain.Entities;
+using bow.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace bow.Infrastructure.Persistence.Repositories;

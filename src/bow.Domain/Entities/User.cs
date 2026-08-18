@@ -24,4 +24,17 @@ public class User
         DisplayName = displayName;
         RegisteredAt = DateTime.UtcNow;
     }
+
+    public void ConfigureLearning(LanguageCode nativeLanguage, 
+        LanguageCode learningLanguage, CefrLevel level)
+    {
+        if (nativeLanguage == learningLanguage)
+        {
+            throw new ArgumentException("Native language and learning language couldn't be the same");
+        }
+
+        NativeLanguage = nativeLanguage;
+        LearningLanguage = learningLanguage;
+        LearningLevel = level;
+    }
 }

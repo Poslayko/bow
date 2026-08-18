@@ -31,6 +31,7 @@ app.MapAddVocabularyItemEndpoint();
 app.MapAddVocabularyTranslationEndpoint();
 app.MapGetVocabularyTranslationEndpoint();
 app.MapAddUserVocabularyProgressEndpoint();
+app.MapConfigureLearningUserEndpoint();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
