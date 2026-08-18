@@ -1,8 +1,8 @@
 using bow.Domain.Enums;
 
-namespace bow.Application.UserVocabularyProgresses.Add;
+namespace bow.Api.Endpoints.UserVocabularyProgress;
 
-public sealed record AddUserVocabularyProgressResult(
+public sealed record AddUserVocabularyProgressResponse(
     bool IsCreated,
     int UserVocabularyProgressId,
     int VocabularyItemId,

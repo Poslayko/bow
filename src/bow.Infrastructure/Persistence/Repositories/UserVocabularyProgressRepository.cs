@@ -13,7 +13,7 @@ internal sealed class UserVocabularyProgressRepository : IUserVocabularyProgress
         _db = db;
     }
 
-    public async  Task AddAsync(UserVocabularyProgress userVocabularyProgress, 
+    public async Task AddAsync(UserVocabularyProgress userVocabularyProgress, 
         CancellationToken cancellationToken = default)
     {
         await _db.UserVocabularyProgresses.AddAsync(userVocabularyProgress, 

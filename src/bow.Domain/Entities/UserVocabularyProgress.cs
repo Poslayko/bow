@@ -2,7 +2,7 @@ namespace bow.Domain.Entities;
 
 using bow.Domain.Enums;
 
-public class UserVocabularyProgress
+public sealed class UserVocabularyProgress
 {
     public int Id { get; private set; }
     public int UserId { get; private set; }

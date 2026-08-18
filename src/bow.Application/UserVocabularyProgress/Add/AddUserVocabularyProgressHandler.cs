@@ -36,7 +36,7 @@ public sealed class AddUserVocabularyProgressHandler
 
         if (user is null)
         {
-            throw new NotFoundException($"User with '{command.TelegramId}' wasn't found");
+            throw new NotFoundException($"User with TelegramId: '{command.TelegramId}' wasn't found");
         }
 
         var item = await _item.GetByIdAsync(command.VocabularyItemId, cancellationToken);
@@ -63,9 +63,11 @@ public sealed class AddUserVocabularyProgressHandler
         return new AddUserVocabularyProgressResult(
             isCreated,
             userProgress.Id,
-            userProgress.Stage,
+            userProgress.VocabularyItemId,
             userProgress.UserId,
-            userProgress.NextReviewAt
+            userProgress.Stage,
+            userProgress.NextReviewAt,
+            userProgress.LastReviewedAt
         );
     }
 }

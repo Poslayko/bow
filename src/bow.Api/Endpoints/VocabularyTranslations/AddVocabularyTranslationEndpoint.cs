@@ -43,7 +43,7 @@ public static class AddVocabularyTranslationEndpoint
             result.WasTargetCreated
         );
 
-        if (result.IsCreated)
+        if (response.IsCreated)
         {
             return Results.Created(
                 $"/api/v1/vocabulary-translations/{response.VocabularyTranslationId}",
