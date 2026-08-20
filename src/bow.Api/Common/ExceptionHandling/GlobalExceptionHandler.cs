@@ -22,6 +22,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         {
             ArgumentException => StatusCodes.Status400BadRequest,
             NotFoundException => StatusCodes.Status404NotFound,
+            ConflictException => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status500InternalServerError
         };
 
@@ -41,7 +42,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             Title = GetTitle(statusCode),
         };
 
-        if (statusCode == 400 || statusCode == 404)
+        if (statusCode == 400 || statusCode == 404 || statusCode == 409)
         {
             problemDetails.Detail = exception.Message;
         }
@@ -62,6 +63,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         {
             StatusCodes.Status400BadRequest => "Bad request",
             StatusCodes.Status404NotFound => "Not found",
+            StatusCodes.Status409Conflict => "Conflict",
             _ => "Server error"
         };
     }

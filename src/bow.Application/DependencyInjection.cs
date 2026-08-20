@@ -1,3 +1,4 @@
+using bow.Application.Study.GetNext;
 using bow.Application.Users.ConfigureLearning;
 using bow.Application.Users.Register;
 using bow.Application.UserVocabularyProgresses.Add;
@@ -18,6 +19,7 @@ public static class DependencyInjection
         services.AddScoped<GetVocabularyTranslationHandler>();
         services.AddScoped<AddUserVocabularyProgressHandler>();
         services.AddScoped<ConfigureLearningUserHandler>();
+        services.AddScoped<GetNextStudyItemHandler>();
         
         return services;
     }
