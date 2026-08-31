@@ -21,6 +21,16 @@ internal sealed class UserVocabularyProgressRepository : IUserVocabularyProgress
             cancellationToken);
     }
 
+    public async Task<UserVocabularyProgress?> GetByIdAndUserIdAsync(int progressId, 
+        int userId, CancellationToken cancellationToken)
+    {
+        return await _db.UserVocabularyProgresses
+            .Where(userProgress => userProgress.Id == progressId 
+                && userProgress.UserId == userId)
+            .Include(userProgress => userProgress.VocabularyItem)
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<UserVocabularyProgress?> GetByUserAndVocabularyItemAsync(int userId, 
         int vocabularyItemId, CancellationToken cancellationToken)
     {

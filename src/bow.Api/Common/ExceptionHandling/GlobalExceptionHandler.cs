@@ -23,6 +23,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             ArgumentException => StatusCodes.Status400BadRequest,
             NotFoundException => StatusCodes.Status404NotFound,
             ConflictException => StatusCodes.Status409Conflict,
+            NotImplementedException => StatusCodes.Status500InternalServerError,
             _ => StatusCodes.Status500InternalServerError
         };
 

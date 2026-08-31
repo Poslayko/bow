@@ -1,4 +1,5 @@
 using bow.Domain.Entities;
+using bow.Domain.Enums;
 
 namespace bow.Application.Common.Interfaces;
 
@@ -18,5 +19,11 @@ public interface IVocabularyTranslationRepository
     Task AddAsync(
         VocabularyTranslation vocabularyTranslation,
         CancellationToken cancellationToken = default
+    );
+
+    Task<IReadOnlyList<VocabularyTranslation>> GetBySourceItemIdAndNativeLanguageAsync(
+        int sourceItemId,
+        LanguageCode nativeLanguage,
+        CancellationToken cancellationToken
     );
 }

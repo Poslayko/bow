@@ -7,6 +7,7 @@ using bow.Api.Endpoints.VocabularyTranslations;
 using bow.Api.Common.ExceptionHandling;
 using bow.Api.Endpoints.UserVocabularyProgress;
 using bow.Api.Endpoints.Study;
+using bow.Application.Study.SubmitAnswer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,7 @@ app.MapGetVocabularyTranslationEndpoint();
 app.MapAddUserVocabularyProgressEndpoint();
 app.MapConfigureLearningUserEndpoint();
 app.MapGetNextStudyItemEndpoint();
+app.MapSubmitAnswerEndpoint();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

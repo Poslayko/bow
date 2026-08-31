@@ -1,5 +1,6 @@
 using bow.Application.Common.Interfaces;
 using bow.Domain.Entities;
+using bow.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace bow.Infrastructure.Persistence.Repositories;
@@ -25,6 +26,17 @@ internal sealed class VocabularyTranslationRepository : IVocabularyTranslationRe
         return await _db.VocabularyTranslations
             .SingleOrDefaultAsync(x => x.TranslationFromId == sourceItemId && 
                 x.TranslationToId == targetItemId, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<VocabularyTranslation>> GetBySourceItemIdAndNativeLanguageAsync(
+        int sourceItemId, LanguageCode nativeLanguage, CancellationToken cancellationToken)
+    {
+        return await _db.VocabularyTranslations
+            .AsNoTracking()
+            .Where(translation => translation.TranslationFromId == sourceItemId
+                && translation.TranslationTo.Language == nativeLanguage)
+            .Include(translation => translation.TranslationTo)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<VocabularyTranslation>> GetBySourceItemIdAsync(

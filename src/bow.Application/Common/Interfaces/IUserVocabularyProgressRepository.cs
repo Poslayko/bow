@@ -22,4 +22,10 @@ public interface IUserVocabularyProgressRepository
         DateTime now,
         CancellationToken cancellationToken
     );
+
+    Task<UserVocabularyProgress?> GetByIdAndUserIdAsync(
+        int progressId,
+        int userId,
+        CancellationToken cancellationToken
+    );
 }
