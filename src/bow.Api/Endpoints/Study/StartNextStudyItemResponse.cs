@@ -1,8 +1,8 @@
 using bow.Domain.Enums;
 
-namespace bow.Application.Study.GetNext;
+namespace bow.Api.Endpoints.Study;
 
-public sealed record GetNextStudyItemResult(
+public sealed record StartNextStudyItemResponse(
     int UserVocabularyProgressId,
     int VocabularyItemId,
     string Text,

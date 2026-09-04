@@ -1,15 +1,14 @@
-using bow.Application.Study.GetNext;
-using Microsoft.AspNetCore.Mvc;
+using bow.Application.Study.StartNext;
 
 namespace bow.Api.Endpoints.Study;
 
-public static class GetNextStudyItemEndpoint
+public static class StartNextStudyItemEndpoint
 {
-    public static IEndpointRouteBuilder MapGetNextStudyItemEndpoint(
+    public static IEndpointRouteBuilder MapPostNextStudyItemEndpoint(
         this IEndpointRouteBuilder endpoints
     )
     {
-        endpoints.MapGet(
+        endpoints.MapPost(
             "/api/v1/study/next",
             HandleAsync
         );
@@ -18,12 +17,12 @@ public static class GetNextStudyItemEndpoint
     }
 
     public static async Task<IResult> HandleAsync(
-        [AsParameters] GetNextStudyItemRequest request,
-        [FromServices] GetNextStudyItemHandler handler,
+        StartNextStudyItemRequest request,
+        StartNextStudyItemHandler handler,
         CancellationToken cancellationToken
     )
     {
-        var query = new GetNextStudyItemQuery(request.TelegramId);
+        var query = new StartNextStudyItemCommand(request.TelegramId);
 
         var result = await handler.HandleAsync(query, cancellationToken);
 
@@ -32,7 +31,7 @@ public static class GetNextStudyItemEndpoint
             return Results.NoContent();
         }
 
-        var response = new GetNextStudyItemResponse(
+        var response = new StartNextStudyItemResponse(
             result.UserVocabularyProgressId,
             result.VocabularyItemId,
             result.Text,

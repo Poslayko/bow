@@ -26,4 +26,12 @@ public interface IVocabularyItemRepository
         VocabularyItem vocabularyItem,
         CancellationToken cancellationToken = default
     );
+
+    Task<int?> TryToGetPossibleNextItemIdAsync(
+        int userId,
+        IReadOnlyList<CefrLevel> allowedLevels,
+        LanguageCode learningLanguage,
+        LanguageCode nativeLanguage,
+        CancellationToken cancellationToken
+    );
 }

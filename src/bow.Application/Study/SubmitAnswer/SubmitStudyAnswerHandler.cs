@@ -1,4 +1,3 @@
-using System.Reflection.Metadata;
 using bow.Application.Common.Exceptions;
 using bow.Application.Common.Interfaces;
 using bow.Domain.Entities;
@@ -34,7 +33,7 @@ public sealed class SubmitStudyAnswerHandler
             throw new ArgumentException();
         }
 
-        var user = await _users.GetByTelegramIdAsync(command.TelegramId);
+        var user = await _users.GetByTelegramIdAsync(command.TelegramId, cancellationToken);
 
         if (user is null)
         {
@@ -73,7 +72,7 @@ public sealed class SubmitStudyAnswerHandler
 
         foreach(var translation in possibleEntityTranslations)
         {
-            possibleTranslations.Add(translation.TranslationTo.NormalizedText);
+            possibleTranslations.Add(translation.TranslationTo.Text);
             if (translation.TranslationTo.NormalizedText == normalizedAnswer)
             {
                 isCorrect = true;

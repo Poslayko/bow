@@ -1,5 +1,5 @@
 namespace bow.Api.Endpoints.Study;
 
-public sealed record GetNextStudyItemRequest(
+public sealed record StartNextStudyItemRequest(
     long TelegramId
 );

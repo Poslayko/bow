@@ -1,6 +1,6 @@
 using bow.Domain.Enums;
 
-namespace bow.Application.Study.SubmitAnswer;
+namespace bow.Api.Endpoints.Study;
 
 public sealed record SubmitAnswerResponse(
     int UserVocabularyProgressId,

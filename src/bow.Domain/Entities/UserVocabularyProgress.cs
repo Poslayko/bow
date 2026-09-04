@@ -72,4 +72,22 @@ public sealed class UserVocabularyProgress
     {
         Stage = stage;
     }
+
+    public static IReadOnlyList<CefrLevel> GetAllowedLevels(CefrLevel level)
+    {
+        IReadOnlyList<CefrLevel> allowedLevels = level switch
+        {
+            CefrLevel.A1 => [CefrLevel.A1],
+            CefrLevel.A2 => [CefrLevel.A1, CefrLevel.A2],
+            CefrLevel.B1 => [CefrLevel.A1, CefrLevel.A2, CefrLevel.B1],
+            CefrLevel.B2 => [CefrLevel.A1, CefrLevel.A2, CefrLevel.B1, CefrLevel.B2],
+            CefrLevel.C1 => [CefrLevel.A1, CefrLevel.A2, CefrLevel.B1, CefrLevel.B2,
+                CefrLevel.C1],
+            CefrLevel.C2 => [CefrLevel.A1, CefrLevel.A2, CefrLevel.B1, CefrLevel.B2,
+                CefrLevel.C1, CefrLevel.C2],
+            _ => throw new ArgumentException($"Wrong CefrLevel: {level}")
+        };
+
+        return allowedLevels;
+    }
 }

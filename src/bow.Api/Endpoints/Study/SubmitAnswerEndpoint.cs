@@ -1,4 +1,4 @@
-namespace bow.Application.Study.SubmitAnswer;
+namespace bow.Api.Endpoints.Study;
 
 public static class SubmitAnswerEndpoint
 {

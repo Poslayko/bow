@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using bow.Domain.Entities;
+﻿using bow.Domain.Entities;
 using bow.Domain.Enums;
 
 namespace bow.Domain.Tests;
@@ -14,6 +13,8 @@ public class UserVocabularyProgressTests
             vocabularyItemId: 10,
             nextReviewAt: DateTime.UtcNow
         );
+
+        progress.SetStage(LearningStage.After3Hours);
 
         var reviewedAt = new DateTime(2026, 8, 31, 12, 0, 0, DateTimeKind.Utc);
 
@@ -66,5 +67,56 @@ public class UserVocabularyProgressTests
         Assert.Equal(expectedStage, progress.Stage);
         Assert.Equal(reviewedAt, progress.LastReviewedAt);
         Assert.Equal(nextReviewAt, progress.NextReviewAt);
+    }
+
+    public static IEnumerable<object[]> AllowedLevelsCases()
+    {
+        yield return new object[]
+        {
+            CefrLevel.A1,
+            new[] { CefrLevel.A1 }
+        };
+
+        yield return new object[]
+        {
+            CefrLevel.A2,
+            new[] { CefrLevel.A1, CefrLevel.A2 }
+        };
+
+        yield return new object[]
+        {
+            CefrLevel.B1,
+            new[] { CefrLevel.A1, CefrLevel.A2, CefrLevel.B1 }
+        };
+
+        yield return new object[]
+        {
+            CefrLevel.B2,
+            new[] { CefrLevel.A1, CefrLevel.A2, CefrLevel.B1, CefrLevel.B2 }
+        };
+
+        yield return new object[]
+        {
+            CefrLevel.C1,
+            new[] { CefrLevel.A1, CefrLevel.A2, CefrLevel.B1, CefrLevel.B2, CefrLevel.C1 }
+        };
+
+        yield return new object[]
+        {
+            CefrLevel.C2,
+            new[] { CefrLevel.A1, CefrLevel.A2, CefrLevel.B1, CefrLevel.B2, CefrLevel.C1, CefrLevel.C2 }
+        };
+    }
+
+    [Theory]
+    [MemberData(nameof(AllowedLevelsCases))]
+    public void GetAllowedLevels_WhenExist_GetListOfAllowedLevels(
+        CefrLevel level,
+        IReadOnlyCollection<CefrLevel> expectedLevels
+    )
+    {
+        var allowedLevels = UserVocabularyProgress.GetAllowedLevels(level);
+
+        Assert.Equal(expectedLevels, allowedLevels);
     }
 }
