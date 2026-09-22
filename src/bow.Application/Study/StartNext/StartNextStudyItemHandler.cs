@@ -49,9 +49,9 @@ public sealed class StartNextStudyItemHandler
 
         var nextItem = await _userProgress.GetNextDueAsync(user.Id, learningLanguage,
             nativeLanguage, now, cancellationToken);
-        
+
         UserVocabularyProgress? possibleNextItem = nextItem is null
-            ? await TryToGetPossibleNextItemAsync(
+            ? await CreateProgressIfPossibleAsync(
                 user.Id,
                 learningLevel,
                 learningLanguage,
@@ -79,7 +79,7 @@ public sealed class StartNextStudyItemHandler
         );
     }
 
-    private async Task<UserVocabularyProgress?> TryToGetPossibleNextItemAsync(
+    private async Task<UserVocabularyProgress?> CreateProgressIfPossibleAsync(
         int userId, 
         CefrLevel level,
         LanguageCode learningLanguage,
@@ -90,7 +90,7 @@ public sealed class StartNextStudyItemHandler
         var allowedLevels = UserVocabularyProgress.GetAllowedLevels(level);
         var possibleNextItemId = await _item.TryToGetPossibleNextItemIdAsync(userId,
             allowedLevels, learningLanguage, nativeLanguage, cancellationToken);
-            
+        
         if (possibleNextItemId is not {} existingPossibleNextItemId)
         {
             return null;

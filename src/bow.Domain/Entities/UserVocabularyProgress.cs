@@ -73,6 +73,11 @@ public sealed class UserVocabularyProgress
         Stage = stage;
     }
 
+    public void SetLastReviewedAt(DateTime dateTime)
+    {
+        LastReviewedAt = dateTime;
+    }
+
     public static IReadOnlyList<CefrLevel> GetAllowedLevels(CefrLevel level)
     {
         IReadOnlyList<CefrLevel> allowedLevels = level switch
