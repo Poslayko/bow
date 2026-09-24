@@ -4,8 +4,8 @@ namespace bow.Application.Common.Interfaces;
 
 public interface IUserRepository
 {
-    Task<User?> GetByTelegramIdAsync(
-        long telegramId,
+    Task<User?> GetByIdAsync(
+        int userId,
         CancellationToken cancellationToken = default
     );
 
@@ -14,8 +14,8 @@ public interface IUserRepository
         CancellationToken cancellationToken = default
     );
 
-    Task<bool> ExistsByTelegramIdAsync(
-        long telegramId,
+    Task<bool> ExistsByIdAsync(
+        int userId,
         CancellationToken cancellationToken = default
     );
 }

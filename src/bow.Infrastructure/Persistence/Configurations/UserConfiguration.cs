@@ -10,8 +10,6 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
     {
         builder.ToTable("users");
         builder.HasKey(x => x.Id);
-        builder.HasIndex(x => x.TelegramId)
-            .IsUnique();
         builder.Property(x => x.DisplayName)
             .HasMaxLength(200);
         builder.Property(x => x.NativeLanguage)
@@ -28,8 +26,13 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .WithOne(x => x.User)
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-
+        
         builder.Navigation(x => x.UserVocabularyItemProgresses)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+        
+        builder.HasOne(x => x.TelegramAccount)
+            .WithOne(x => x.User)
+            .HasForeignKey<TelegramAccount>(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

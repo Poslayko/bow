@@ -15,6 +15,7 @@ public static class TestDatabase
                 user_vocabulary_progresses,
                 vocabulary_translations,
                 vocabulary_items,
+                telegram_accounts,
                 users
             RESTART IDENTITY CASCADE;
             """);

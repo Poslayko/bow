@@ -1,7 +1,7 @@
 namespace bow.Application.Study.SubmitAnswer;
 
 public sealed record SubmitStudyAnswerCommand(
-    long TelegramId,
+    int UserId,
     int UserVocabularyProgressId,
     string Answer
 );

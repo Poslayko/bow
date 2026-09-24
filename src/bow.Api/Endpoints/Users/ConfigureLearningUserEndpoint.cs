@@ -1,3 +1,4 @@
+using bow.Application.Common.Interfaces;
 using bow.Application.Users.ConfigureLearning;
 
 namespace bow.Api.Endpoints.Users;
@@ -20,17 +21,25 @@ public static class ConfigureLearningUserEndpoint
         long telegramId,
         ConfigureLearningUserRequest request,
         ConfigureLearningUserHandler handler,
-        CancellationToken cancellationToken
+        ITelegramAccountRepository telegramAccountRepository,
+        CancellationToken token
     )
     {
+        var possibleUserId = await telegramAccountRepository.GetUserIdAsync(telegramId, token);
+
+        if (possibleUserId is not {} userId)
+        {
+            return Results.NotFound($"User with TelegramId: {telegramId} wasn't found");
+        }
+
         var command = new ConfigureLearningUserCommand(
-            telegramId, 
+            userId, 
             request.NativeLanguage,
             request.LearningLanguage,
             request.LearningLevel
         );
 
-        await handler.HandleAsync(command, cancellationToken);
+        await handler.HandleAsync(command, token);
 
         return Results.NoContent();
     }

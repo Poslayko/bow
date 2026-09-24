@@ -1,3 +1,4 @@
+using bow.Application.Common.Interfaces;
 using bow.Application.VocabularyItems.Add;
 
 namespace bow.Api.Endpoints.ItemVocabulary;

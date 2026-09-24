@@ -1,3 +1,5 @@
+using bow.Application.Common.Exceptions;
+using bow.Application.Common.Interfaces;
 using bow.Application.Study.StartNext;
 
 namespace bow.Api.Endpoints.Study;
@@ -19,12 +21,20 @@ public static class StartNextStudyItemEndpoint
     public static async Task<IResult> HandleAsync(
         StartNextStudyItemRequest request,
         StartNextStudyItemHandler handler,
-        CancellationToken cancellationToken
+        ITelegramAccountRepository telegramAccountRepository,
+        CancellationToken token
     )
     {
-        var query = new StartNextStudyItemCommand(request.TelegramId);
+        var possibleUserId = await telegramAccountRepository.GetUserIdAsync(request.TelegramId, token);
 
-        var result = await handler.HandleAsync(query, cancellationToken);
+        if (possibleUserId is not {} userId)
+        {
+            return Results.NotFound($"User with TelegramId: {request.TelegramId} wasn't found");
+        }
+
+        var query = new StartNextStudyItemCommand(userId);
+
+        var result = await handler.HandleAsync(query, token);
 
         if (result is null)
         {

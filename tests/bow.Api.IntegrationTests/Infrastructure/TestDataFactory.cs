@@ -7,9 +7,9 @@ namespace bow.Api.IntegrationTests.Infrastructure;
 public static class TestDataFactory
 {
     public static async Task<User> CreateUserAsync(IUserRepository users, IUnitOfWork unit,
-        long telegramId)
+        string name, long telegramId)
     {
-        var user = new User(telegramId);
+        var user = User.RegisterUserAsATelegramMember(name, telegramId);
 
         await users.AddAsync(user);
 

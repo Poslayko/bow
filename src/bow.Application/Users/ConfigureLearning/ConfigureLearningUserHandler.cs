@@ -1,28 +1,27 @@
 using bow.Application.Common.Exceptions;
 using bow.Application.Common.Interfaces;
-using bow.Domain.Entities;
 
 namespace bow.Application.Users.ConfigureLearning;
 
 public sealed class ConfigureLearningUserHandler
 {
-    private readonly IUserRepository _user;
+    private readonly IUserRepository _users;
     private readonly IUnitOfWork _unit;
 
-    public ConfigureLearningUserHandler(IUserRepository user, IUnitOfWork unit)
+    public ConfigureLearningUserHandler(IUserRepository users, IUnitOfWork unit)
     {
-        _user = user;
+        _users = users;
         _unit = unit;
     }
 
     public async Task HandleAsync(ConfigureLearningUserCommand command,
         CancellationToken cancellationToken)
     {
-        var user = await _user.GetByTelegramIdAsync(command.TelegramId, cancellationToken);
+        var possibleUser = await _users.GetByIdAsync(command.UserId, cancellationToken);
 
-        if (user is null)
+        if (possibleUser is not {} user)
         {
-            throw new NotFoundException($"User with TelegramId: {command.TelegramId} was not found");
+            throw new NotFoundException("Wrong data");
         }
 
         user.ConfigureLearning(command.NativeLanguage, command.LearningLanguage, 

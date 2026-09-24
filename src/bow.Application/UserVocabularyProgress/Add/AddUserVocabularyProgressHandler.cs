@@ -6,21 +6,21 @@ namespace bow.Application.UserVocabularyProgresses.Add;
 
 public sealed class AddUserVocabularyProgressHandler
 {
-    private readonly IUserRepository _user;
-    private readonly IVocabularyItemRepository _item;
-    private readonly IUserVocabularyProgressRepository _userProgress;
+    private readonly IUserRepository _users;
+    private readonly IVocabularyItemRepository _items;
+    private readonly IUserVocabularyProgressRepository _userProgresses;
     private readonly IUnitOfWork _unit;
 
     public AddUserVocabularyProgressHandler(
-        IUserRepository user,
-        IVocabularyItemRepository item,
-        IUserVocabularyProgressRepository userProgress,
+        IUserRepository users,
+        IVocabularyItemRepository items,
+        IUserVocabularyProgressRepository userProgresses,
         IUnitOfWork unit
     )
     {
-        _user = user;
-        _item = item;
-        _userProgress = userProgress;
+        _users = users;
+        _items = items;
+        _userProgresses = userProgresses;
         _unit = unit;
     }
 
@@ -29,24 +29,21 @@ public sealed class AddUserVocabularyProgressHandler
         CancellationToken cancellationToken = default
     )
     {
-        var user = await _user.GetByTelegramIdAsync(
-            command.TelegramId,
-            cancellationToken
-        );
+        var possibleUser = await _users.GetByIdAsync(command.UserId, cancellationToken);
 
-        if (user is null)
+        if (possibleUser is not {} user)
         {
-            throw new NotFoundException($"User with TelegramId: '{command.TelegramId}' wasn't found");
+            throw new NotFoundException("Wrong data");
         }
 
-        var item = await _item.GetByIdAsync(command.VocabularyItemId, cancellationToken);
+        var item = await _items.GetByIdAsync(command.VocabularyItemId, cancellationToken);
 
         if (item is null)
         {
             throw new NotFoundException($"Vocabulary item with '{command.VocabularyItemId}' wasn't found");
         }
 
-        var userProgress = await _userProgress.GetByUserAndVocabularyItemAsync(user.Id,
+        var userProgress = await _userProgresses.GetByUserAndVocabularyItemAsync(user.Id,
             item.Id, cancellationToken);
 
         var isCreated = false;
@@ -54,7 +51,7 @@ public sealed class AddUserVocabularyProgressHandler
         if (userProgress is null)
         {
             userProgress = new UserVocabularyProgress(user.Id, item.Id, DateTime.UtcNow);
-            await _userProgress.AddAsync(userProgress, cancellationToken);
+            await _userProgresses.AddAsync(userProgress, cancellationToken);
 
             isCreated = true;
             await _unit.SaveChangesAsync(cancellationToken);

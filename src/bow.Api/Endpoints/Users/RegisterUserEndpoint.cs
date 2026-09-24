@@ -1,3 +1,4 @@
+using bow.Application.Common.Interfaces;
 using bow.Application.Users.Register;
 
 namespace bow.Api.Endpoints.Users;
@@ -18,11 +19,11 @@ public static class RegisterUserEndpoint
     private static async Task<IResult> HandleAsync(
         RegisterUserRequest request,
         RegisterUserHandler handler,
-        CancellationToken cancellationToken
+        CancellationToken token
     )
     {
         var appCommand = new RegisterUserCommand(request.TelegramId, request.DisplayName);
-        var result = await handler.HandleAsync(appCommand, cancellationToken);
+        var result = await handler.HandleAsync(appCommand, token);
         var response = new RegisterUserResponse(
             result.UserId,
             result.IsCreated

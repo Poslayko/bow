@@ -7,21 +7,21 @@ namespace bow.Application.Study.StartNext;
 
 public sealed class StartNextStudyItemHandler
 {
-    private readonly IUserRepository _user;
-    private readonly IUserVocabularyProgressRepository _userProgress;
-    private readonly IVocabularyItemRepository _item;
+    private readonly IUserRepository _users;
+    private readonly IUserVocabularyProgressRepository _userProgresses;
+    private readonly IVocabularyItemRepository _items;
     private readonly IUnitOfWork _unit;
 
     public StartNextStudyItemHandler(
-        IUserRepository user,
-        IUserVocabularyProgressRepository userProgress,
-        IVocabularyItemRepository item,
+        IUserRepository users,
+        IUserVocabularyProgressRepository userProgresses,
+        IVocabularyItemRepository items,
         IUnitOfWork unit
     )
     {
-        _user = user;
-        _userProgress = userProgress;
-        _item = item;
+        _users = users;
+        _userProgresses = userProgresses;
+        _items = items;
         _unit = unit;
     }
 
@@ -30,11 +30,11 @@ public sealed class StartNextStudyItemHandler
         CancellationToken cancellationToken
     )
     {
-        var user = await _user.GetByTelegramIdAsync(query.TelegramId, cancellationToken);
+        var possibleUser = await _users.GetByIdAsync(query.UserId, cancellationToken);
 
-        if (user is null)
+        if (possibleUser is not {} user)
         {
-            throw new NotFoundException($"User with TelegramId: {query.TelegramId} wasn't found");
+            throw new NotFoundException("Wrong data");
         }
 
         if (user.LearningLanguage is not {} learningLanguage 
@@ -47,7 +47,7 @@ public sealed class StartNextStudyItemHandler
 
         var now = DateTime.UtcNow;
 
-        var nextItem = await _userProgress.GetNextDueAsync(user.Id, learningLanguage,
+        var nextItem = await _userProgresses.GetNextDueAsync(user.Id, learningLanguage,
             nativeLanguage, now, cancellationToken);
 
         UserVocabularyProgress? possibleNextItem = nextItem is null
@@ -88,7 +88,7 @@ public sealed class StartNextStudyItemHandler
         CancellationToken cancellationToken)
     {
         var allowedLevels = UserVocabularyProgress.GetAllowedLevels(level);
-        var possibleNextItemId = await _item.TryToGetPossibleNextItemIdAsync(userId,
+        var possibleNextItemId = await _items.TryToGetPossibleNextItemIdAsync(userId,
             allowedLevels, learningLanguage, nativeLanguage, cancellationToken);
         
         if (possibleNextItemId is not {} existingPossibleNextItemId)
@@ -99,11 +99,11 @@ public sealed class StartNextStudyItemHandler
         var possibleNextProgress = new UserVocabularyProgress(userId, existingPossibleNextItemId, 
             now);
 
-        await _userProgress.AddAsync(possibleNextProgress, cancellationToken);
+        await _userProgresses.AddAsync(possibleNextProgress, cancellationToken);
 
         await _unit.SaveChangesAsync(cancellationToken);
 
-        return await _userProgress.GetByIdAndUserIdAsync(
+        return await _userProgresses.GetByIdAndUserIdAsync(
             possibleNextProgress.Id,
             userId,
             cancellationToken

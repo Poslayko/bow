@@ -38,13 +38,16 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
         var users = TestDatabase.GetService<IUserRepository>(scope);
         var unit = TestDatabase.GetService<IUnitOfWork>(scope);
 
-        var user = await TestDataFactory.CreateUserAsync(users, unit, telegramId: 1234567890);
+        var user = await TestDataFactory.CreateUserAsync(users, unit, 
+            name: "Alex", telegramId: 1234567890);
 
         await TestDataFactory.ConfigureLearningAsync(user, unit);
 
+        Assert.NotNull(user.TelegramAccount);
+
         var response = await _client.PostAsJsonAsync("/api/v1/study/next", new
         {
-            TelegramId = user.TelegramId
+            TelegramId = user.TelegramAccount.TelegramId
         });
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
@@ -63,7 +66,8 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
         var translations = TestDatabase.GetService<IVocabularyTranslationRepository>(scope);
         var db = TestDatabase.GetService<AppDbContext>(scope);
 
-        var user = await TestDataFactory.CreateUserAsync(users, unit, telegramId: 1234567890);
+        var user = await TestDataFactory.CreateUserAsync(users, unit, 
+            name: "Alex", telegramId: 1234567890);
 
         await TestDataFactory.ConfigureLearningAsync(user, unit);
 
@@ -75,9 +79,11 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
         await TestDataFactory.CreateTranslationAsync(translations, unit,
             itemEn, itemRu);
 
+        Assert.NotNull(user.TelegramAccount);
+        
         var response = await _client.PostAsJsonAsync("/api/v1/study/next", new
         {
-            TelegramId = user.TelegramId
+            TelegramId = user.TelegramAccount.TelegramId
         });
     
         var responseBody = await response.Content
@@ -97,7 +103,7 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
 
         var responseFromSecondTry = await _client.PostAsJsonAsync("/api/v1/study/next", new
         {
-            TelegramId = user.TelegramId
+            TelegramId = user.TelegramAccount.TelegramId
         });
 
         var responseFromSecondTryBody = await responseFromSecondTry.Content
@@ -170,7 +176,8 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
             itemFreeTranslation
         );
 
-        var user = await TestDataFactory.CreateUserAsync(users, unit, telegramId: 1234567890);
+        var user = await TestDataFactory.CreateUserAsync(users, unit, 
+            name: "Alex", telegramId: 1234567890);
 
         await TestDataFactory.ConfigureLearningAsync(user, unit);
 
@@ -179,9 +186,11 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
         var progress = await TestDataFactory.CreateProgressAsync(progresses, unit, user.Id,
             itemThatWillBeInProgress.Id, now);
         
+        Assert.NotNull(user.TelegramAccount);
+
         var response = await _client.PostAsJsonAsync("/api/v1/study/next", new
         {
-            TelegramId = user.TelegramId
+            TelegramId = user.TelegramAccount.TelegramId
         });        
 
         var responseBody = await response.Content
@@ -210,7 +219,8 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
         var translations = TestDatabase.GetService<IVocabularyTranslationRepository>(scope);
         var db = TestDatabase.GetService<AppDbContext>(scope);
 
-        var user = await TestDataFactory.CreateUserAsync(users, unit, 1234567890);
+        var user = await TestDataFactory.CreateUserAsync(users, unit, 
+            name: "Alex", telegramId: 1234567890);
         await TestDataFactory.ConfigureLearningAsync(user, unit, LanguageCode.Ru, 
             LanguageCode.En, CefrLevel.B1);
 
@@ -282,9 +292,11 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
         await TestDataFactory.CreateTranslationAsync(translations, unit,
             itemEn, itemRu, CefrLevel.A2);
 
+        Assert.NotNull(user.TelegramAccount);
+
         var response = await _client.PostAsJsonAsync("/api/v1/study/next", new
         {
-            TelegramId = user.TelegramId
+            TelegramId = user.TelegramAccount.TelegramId
         });
 
         var countedPorgresses = await db.UserVocabularyProgresses
@@ -314,7 +326,8 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
         var translations = TestDatabase.GetService<IVocabularyTranslationRepository>(scope);
         var progresses = TestDatabase.GetService<IUserVocabularyProgressRepository>(scope);
 
-        var user = await TestDataFactory.CreateUserAsync(users, unit, telegramId: 1234567890);
+        var user = await TestDataFactory.CreateUserAsync(users, unit, 
+            name: "Alex", telegramId: 1234567890);
 
         user.ConfigureLearning(LanguageCode.Ru, LanguageCode.En, CefrLevel.B1);
         await unit.SaveChangesAsync(CancellationToken.None);
@@ -340,9 +353,11 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
         var progress = await TestDataFactory.CreateProgressAsync(progresses, unit,
             user.Id, itemEn.Id, now);
 
+        Assert.NotNull(user.TelegramAccount);
+
         var response = await _client.PostAsJsonAsync("/api/v1/study/answer", new
         {
-            TelegramId = user.TelegramId,
+            TelegramId = user.TelegramAccount.TelegramId,
             UserVocabularyProgressId = progress.Id,
             Answer = " ЯБЛОКО "
         });
@@ -368,7 +383,7 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
 
         var responseStartStudyNext = await _client.PostAsJsonAsync("/api/v1/study/next", new
         {
-            TelegramId = user.TelegramId
+            TelegramId = user.TelegramAccount.TelegramId
         });
 
         Assert.Equal(HttpStatusCode.NoContent, responseStartStudyNext.StatusCode);
@@ -388,7 +403,8 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
         var progresses = TestDatabase.GetService<IUserVocabularyProgressRepository>(scope);
         var db = TestDatabase.GetService<AppDbContext>(scope);
 
-        var user = await TestDataFactory.CreateUserAsync(users, unit, telegramId: 1234567890);
+        var user = await TestDataFactory.CreateUserAsync(users, unit, 
+            name: "Alex", telegramId: 1234567890);
 
         await TestDataFactory.ConfigureLearningAsync(user, unit, LanguageCode.Ru,
             LanguageCode.En, CefrLevel.B1);
@@ -412,12 +428,16 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
         await unit.SaveChangesAsync(CancellationToken.None);
 
         var beforeRequest = DateTime.UtcNow;
+
+        Assert.NotNull(user.TelegramAccount);
+
         var response = await _client.PostAsJsonAsync("/api/v1/study/answer", new
         {
-            TelegramId = user.TelegramId,
+            TelegramId = user.TelegramAccount.TelegramId,
             UserVocabularyProgressId = progress.Id,
             Answer = "банан"
         });
+
         var afterRequest = DateTime.UtcNow;
 
         var body = await response.Content
@@ -437,7 +457,7 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
 
         var responseGetNext = await _client.PostAsJsonAsync("/api/v1/study/next", new
         {
-            TelegramId = user.TelegramId
+            TelegramId = user.TelegramAccount.TelegramId
         });
 
         var bodyGetNext = await responseGetNext.Content
@@ -461,9 +481,9 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
         var progresses = TestDatabase.GetService<IUserVocabularyProgressRepository>(scope);
 
         var userWithOneProgress = await TestDataFactory.CreateUserAsync(users, unit, 
-            telegramId: 1234567890);
+            name: "Alex", telegramId: 1234567890);
         var userWithoutProgresses = await TestDataFactory.CreateUserAsync(users, unit,
-            telegramId: 0987654321);
+            name: "Alex", telegramId: 0987654321);
 
         await TestDataFactory.ConfigureLearningAsync(userWithOneProgress, unit,
             LanguageCode.Ru, LanguageCode.En, CefrLevel.B1);
@@ -481,11 +501,28 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
         var progress = await TestDataFactory.CreateProgressAsync(progresses, unit, 
             userWithOneProgress.Id, itemEn.Id, DateTime.UtcNow);
 
+        Assert.NotNull(userWithoutProgresses.TelegramAccount);
+
         var response = await _client.PostAsJsonAsync("/api/v1/study/answer", new
         {
-            TelegramId = userWithoutProgresses.TelegramId,
+            TelegramId = userWithoutProgresses.TelegramAccount.TelegramId,
             UserVocabularyProgressId = progress.Id,
             Answer = "яблоко"
+        });
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task StartNext_ForTelegramUserIdThatDoNotExist_ResultNotFound()
+    {
+        var scope = _factory.Services.CreateScope();
+
+        await TestDatabase.ResetTables(scope);
+
+        var response = await _client.PostAsJsonAsync("/api/v1/study/next", new
+        {
+            TelegramId = 1234567890
         });
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

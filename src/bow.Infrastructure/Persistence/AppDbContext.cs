@@ -7,6 +7,7 @@ namespace bow.Infrastructure.Persistence;
 public sealed class AppDbContext : DbContext, IUnitOfWork
 {
     public DbSet<User> Users => Set<User>();
+    public DbSet<TelegramAccount> TelegramAccounts => Set<TelegramAccount>();
     public DbSet<UserVocabularyProgress> UserVocabularyProgresses => Set<UserVocabularyProgress>();
     public DbSet<VocabularyItem> VocabularyItems => Set<VocabularyItem>();
     public DbSet<VocabularyTranslation> VocabularyTranslations => Set<VocabularyTranslation>();

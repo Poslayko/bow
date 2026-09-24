@@ -1,11 +1,10 @@
-namespace bow.Domain.Entities;
-
 using bow.Domain.Enums;
+
+namespace bow.Domain.Entities;
 
 public class User
 {
     public int Id { get; private set; }
-    public long TelegramId { get; private set; }
     public string? DisplayName { get; private set; }
     public LanguageCode? NativeLanguage { get; private set; }
     public LanguageCode? LearningLanguage { get; private set; }
@@ -14,15 +13,21 @@ public class User
 
     private readonly List<UserVocabularyProgress> _userVocabularyItemProgresses = [];
     public IReadOnlyCollection<UserVocabularyProgress> UserVocabularyItemProgresses => _userVocabularyItemProgresses;
+    public TelegramAccount? TelegramAccount { get; private set; }
 
-    public User(long telegramId, string? displayName = null)
+    public User(string? displayName)
     {   
-        if (telegramId <= 0) throw new ArgumentException("User can't be without telegramId",
-            nameof(telegramId));
-
-        TelegramId = telegramId;
         DisplayName = displayName;
         RegisteredAt = DateTime.UtcNow;
+    }
+    public static User RegisterUserAsATelegramMember(string? displayName, long telegramId)
+    {   
+        var user = new User(displayName)
+        {
+            TelegramAccount = new TelegramAccount(telegramId)
+        };
+
+        return user;
     }
 
     public void ConfigureLearning(LanguageCode nativeLanguage, 

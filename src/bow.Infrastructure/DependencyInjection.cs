@@ -1,5 +1,4 @@
 using bow.Application.Common.Interfaces;
-using bow.Domain.Entities;
 using bow.Infrastructure.Persistence;
 using bow.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IUserVocabularyProgressRepository, UserVocabularyProgressRepository>();
         services.AddScoped<IUnitOfWork>(
             provider => provider.GetRequiredService<AppDbContext>());
+        services.AddScoped<ITelegramAccountRepository, TelegramAccountRepository>();
 
         return services;
     }

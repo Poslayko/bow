@@ -1,6 +1,5 @@
 using bow.Application.Common.Interfaces;
 using bow.Domain.Entities;
-using bow.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace bow.Infrastructure.Persistence.Repositories;
@@ -19,17 +18,17 @@ internal sealed class UserRepository : IUserRepository
         await _dbContext.Users.AddAsync(user, cancellationToken);
     }
 
-    public async Task<bool> ExistsByTelegramIdAsync(
-        long telegramId, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsByIdAsync(
+        int userId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Users
-            .AnyAsync(x => x.TelegramId == telegramId, cancellationToken);
+            .AnyAsync(x => x.Id == userId, cancellationToken);
     }
 
-    public async Task<User?> GetByTelegramIdAsync(
-        long telegramId, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByIdAsync(
+        int userId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Users
-            .FirstOrDefaultAsync(x => x.TelegramId == telegramId, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
     }
 }

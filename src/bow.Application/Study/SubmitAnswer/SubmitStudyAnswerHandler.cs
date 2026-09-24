@@ -33,11 +33,11 @@ public sealed class SubmitStudyAnswerHandler
             throw new ArgumentException();
         }
 
-        var user = await _users.GetByTelegramIdAsync(command.TelegramId, cancellationToken);
+        var possibleUser = await _users.GetByIdAsync(command.UserId, cancellationToken);
 
-        if (user is null)
+        if (possibleUser is not {} user)
         {
-            throw new NotFoundException($"User with TelegramId: {command.TelegramId} was not found");
+            throw new NotFoundException("Wrong data");
         }
 
         if (user.LearningLanguage is null || user.NativeLanguage is not { } nativeLanguage 

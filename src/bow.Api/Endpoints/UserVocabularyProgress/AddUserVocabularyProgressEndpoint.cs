@@ -1,3 +1,4 @@
+using bow.Application.Common.Interfaces;
 using bow.Application.UserVocabularyProgresses.Add;
 
 namespace bow.Api.Endpoints.UserVocabularyProgress;
@@ -19,11 +20,19 @@ public static class AddUserVocabularyProgressEndpoint
     public static async Task<IResult> HandleAsync(
         AddUserVocabularyProgressRequest request,
         AddUserVocabularyProgressHandler handler,
+        ITelegramAccountRepository telegramAccountRepository,
         CancellationToken token
     )
     {
+        var possibleUserId = await telegramAccountRepository.GetUserIdAsync(request.TelegramId, token);
+
+        if (possibleUserId is not {} userId)
+        {
+            return Results.NotFound($"User with TelegramId: {request.TelegramId} wasn't found");
+        }
+
         var command = new AddUserVocabularyProgressCommand(
-            request.TelegramId,
+            userId,
             request.VocabularyItemId
         );
 
