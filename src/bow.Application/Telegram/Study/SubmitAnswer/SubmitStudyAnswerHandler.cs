@@ -1,5 +1,4 @@
 using bow.Application.Common.Interfaces;
-using bow.Application.Telegram.Study.StartNext;
 using bow.Domain.Entities;
 using bow.Domain.Enums;
 
@@ -7,32 +6,26 @@ namespace bow.Application.Telegram.Study.SubmitAnswer;
 
 public sealed class SubmitStudyAnswerHandler
 {
-    private readonly IUserRepository _users;
     private readonly IUserVocabularyProgressRepository _userProgresses;
     private readonly IVocabularyTranslationRepository _translations;
     private readonly IUnitOfWork _unit;
     private readonly ITelegramMessageSender _sender;
-    private readonly StartNextStudyItemHandler _startNextStudyItemHandler;
 
     public SubmitStudyAnswerHandler(
-        IUserRepository users, 
         IUserVocabularyProgressRepository userProgresses,
         IVocabularyTranslationRepository translations,
         IUnitOfWork unit,
-        ITelegramMessageSender telegramMessageSender,
-        StartNextStudyItemHandler startNextStudyItemHandler)
+        ITelegramMessageSender telegramMessageSender
+    )
     {
-        _users = users;
         _userProgresses = userProgresses;
         _translations = translations;
         _unit = unit;
         _sender = telegramMessageSender;
-        _startNextStudyItemHandler = startNextStudyItemHandler;
     }
 
-    public async Task HandleAsync(
+    public async Task<SubmitAnswerResult> HandleAsync(
         User user,
-        TelegramAccount telegramAccount,
         string answer,
         long telegramId,
         CancellationToken cancellationToken
@@ -46,7 +39,7 @@ public sealed class SubmitStudyAnswerHandler
                 "You need to set up your learning profile",
                 cancellationToken);   
 
-            return;
+            return SubmitAnswerResult.NotProcessed;
         }
         
         if (string.IsNullOrWhiteSpace(answer))
@@ -56,14 +49,7 @@ public sealed class SubmitStudyAnswerHandler
                 "You need to answer, the studing item will be resend", 
                 cancellationToken);
 
-            await _startNextStudyItemHandler.HandleAsync(
-                user,
-                telegramAccount,
-                telegramId,
-                cancellationToken
-            );
-            
-            return;
+            return SubmitAnswerResult.ResendQuestion;
         }
 
         var now = DateTime.UtcNow;
@@ -81,41 +67,11 @@ public sealed class SubmitStudyAnswerHandler
                 "Something went wrong, waiting vocabulary item wasn't found",
                 cancellationToken);
 
-            return;
-        }
-
-        await ProcessProgressItem(
-            waitingProgressItem,
-            telegramId,
-            nativeLanguage,
-            answer,
-            now,
-            cancellationToken
-        );
-    }
-
-    private async Task ProcessProgressItem(
-        UserVocabularyProgress? progressItem,
-        long telegramId,
-        LanguageCode nativeLanguage,
-        string answer,
-        DateTime now,
-        CancellationToken cancellationToken
-    )
-    {
-        if (progressItem is null)
-        {
-            await _sender.SendTextMsg(
-                telegramId,
-                "We didn't find items that you were studing",
-                cancellationToken
-            );
-
-            return;
+            return SubmitAnswerResult.NoWaitingAnswer;
         }
 
         var possibleEntityTranslations = await _translations.GetBySourceItemIdAndNativeLanguageAsync(
-            progressItem.VocabularyItemId, 
+            waitingProgressItem.VocabularyItemId, 
             nativeLanguage, 
             cancellationToken
         );
@@ -127,7 +83,7 @@ public sealed class SubmitStudyAnswerHandler
                 "Possible translations weren't found",
                 cancellationToken);
 
-            return;
+            return SubmitAnswerResult.NotProcessed;
         }
 
         var normalizedAnswer = VocabularyItem.NormalizeText(answer);
@@ -144,8 +100,8 @@ public sealed class SubmitStudyAnswerHandler
             }
         }
 
-        progressItem.ApplyAnswer(isCorrect, now);
-        progressItem.SetStatus(UserVocabularyProgressStatus.idle);
+        waitingProgressItem.ApplyAnswer(isCorrect, now);
+        waitingProgressItem.SetStatus(UserVocabularyProgressStatus.idle);
 
         string responseText;
         
@@ -163,5 +119,7 @@ public sealed class SubmitStudyAnswerHandler
             responseText,
             cancellationToken
         );        
+
+        return SubmitAnswerResult.Processed;
     }
 }

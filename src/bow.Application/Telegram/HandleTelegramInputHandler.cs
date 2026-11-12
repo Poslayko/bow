@@ -75,7 +75,7 @@ public sealed class HandleTelegramInputHandler
                 );
             
             await _chooseNativeLanguageHandler.HandleAsync(user.TelegramAccount.TelegramId, 
-                telegramAccount, cancellationToken);
+            telegramAccount, cancellationToken);
 
             return;
         }  
@@ -227,49 +227,6 @@ public sealed class HandleTelegramInputHandler
 
                 break; 
             
-            case (TelegramUserState.InLearningMenu, "📚 Start learning words"):
-                 await _showLearningMenuHandler.HandleAsync(
-                    telegramAccount.TelegramId,
-                    telegramAccount,
-                    cancellationToken
-                );
-
-                await _startNextStudyItemHandler.HandleAsync(
-                    user,
-                    telegramAccount,
-                    telegramAccount.TelegramId,
-                    cancellationToken
-                );
-
-                break; 
-
-            case (TelegramUserState.InLearningMenu, "🚫 Stop learning new items"):
-                await _showMenuHandler.HandleAsync(
-                    telegramAccount.TelegramId,
-                    telegramAccount,
-                    cancellationToken
-                );
-
-                break;
-
-            case (TelegramUserState.InLearningMenu, _):
-                await _submitStudyAnswerHandler.HandleAsync(
-                    user,
-                    telegramAccount,
-                    text,
-                    telegramAccount.TelegramId,
-                    cancellationToken
-                );
-
-                await _startNextStudyItemHandler.HandleAsync(
-                    user,
-                    telegramAccount,
-                    telegramAccount.TelegramId,
-                    cancellationToken
-                );
-
-                break;
-            
             case (TelegramUserState.SubmitAnswer, "🚫 Stop learning new items"):
                 await _showMenuHandler.HandleAsync(
                     telegramAccount.TelegramId,
@@ -280,13 +237,17 @@ public sealed class HandleTelegramInputHandler
                 break;
 
             case (TelegramUserState.SubmitAnswer, _):
-                await _submitStudyAnswerHandler.HandleAsync(
+                var result_in_checking_answer = await _submitStudyAnswerHandler.HandleAsync(
                     user,
-                    telegramAccount,
                     text,
                     telegramAccount.TelegramId,
                     cancellationToken
                 );
+
+                if (result_in_checking_answer == SubmitAnswerResult.NotProcessed)
+                {
+                    break;
+                }
 
                 await _startNextStudyItemHandler.HandleAsync(
                     user,
