@@ -28,4 +28,10 @@ public interface IUserVocabularyProgressRepository
         int userId,
         CancellationToken cancellationToken
     );
+
+    Task<UserVocabularyProgress?> GetUserVocabularyProgressByStatusAsync(
+        UserVocabularyProgressStatus status,
+        int userId,
+        CancellationToken cancellationToken
+    );
 }

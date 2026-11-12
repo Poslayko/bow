@@ -14,7 +14,7 @@ public sealed class TelegramAccountConfiguration : IEntityTypeConfiguration<Tele
             .IsUnique();
         builder.HasIndex(x => x.UserId)
             .IsUnique();
-        builder.Property(x => x.Name)
+        builder.Property(x => x.UserName)
             .HasMaxLength(200);
         builder.Property(x => x.TelegramId)
             .IsRequired();

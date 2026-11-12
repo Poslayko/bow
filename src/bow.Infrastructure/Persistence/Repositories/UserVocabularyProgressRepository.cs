@@ -48,18 +48,30 @@ internal sealed class UserVocabularyProgressRepository : IUserVocabularyProgress
     )
     {
         var item = await _db.UserVocabularyProgresses
-            .AsNoTracking()
             .Where(progress => progress.UserId == userId
                 && progress.VocabularyItem.Language == learningLanguage
                 && progress.VocabularyItem.SourceTranslations.Any(item => 
                     item.TranslationTo.Language == nativeLanguage)
                 && progress.NextReviewAt <= now)
             .Include(progress => progress.VocabularyItem)
-            .OrderBy(progress => progress.Stage == LearningStage.NotStarted)
+            .OrderBy(progress => progress.Status)
+            .ThenBy(progress => progress.Stage == LearningStage.NotStarted)
             .ThenBy(progress => progress.NextReviewAt)
             .ThenBy(progress => progress.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
         return item;
+    }
+
+    public async Task<UserVocabularyProgress?> GetUserVocabularyProgressByStatusAsync(
+        UserVocabularyProgressStatus status, 
+        int userId, 
+        CancellationToken cancellationToken)
+    {
+        return await _db.UserVocabularyProgresses
+            .Where(progress => progress.Status == status
+                && progress.UserId == userId)
+            .Include(progress => progress.VocabularyItem)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

@@ -10,6 +10,7 @@ public sealed class UserVocabularyProgress
     public LearningStage Stage { get; private set; }
     public DateTime NextReviewAt { get; private set; }
     public DateTime? LastReviewedAt { get; private set; }
+    public UserVocabularyProgressStatus Status { get; private set; }
     public User User { get; private set; } = null!;
     public VocabularyItem VocabularyItem { get; private set; } = null!;
 
@@ -78,6 +79,11 @@ public sealed class UserVocabularyProgress
         LastReviewedAt = dateTime;
     }
 
+    public void SetNextReviewAt(DateTime dateTime)
+    {
+        NextReviewAt = dateTime;
+    }
+
     public static IReadOnlyList<CefrLevel> GetAllowedLevels(CefrLevel level)
     {
         IReadOnlyList<CefrLevel> allowedLevels = level switch
@@ -94,5 +100,10 @@ public sealed class UserVocabularyProgress
         };
 
         return allowedLevels;
+    }
+
+    public void SetStatus(UserVocabularyProgressStatus status)
+    {
+        Status = status;
     }
 }

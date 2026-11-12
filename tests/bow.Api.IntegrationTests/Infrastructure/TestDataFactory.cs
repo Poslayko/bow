@@ -9,7 +9,7 @@ public static class TestDataFactory
     public static async Task<User> CreateUserAsync(IUserRepository users, IUnitOfWork unit,
         string name, long telegramId)
     {
-        var user = User.RegisterUserAsATelegramMember(name, telegramId);
+        var user = User.RegisterUserWithTelegramData(name, telegramId);
 
         await users.AddAsync(user);
 

@@ -1,4 +1,5 @@
 using bow.Domain.Entities;
+using bow.Domain.Enums;
 
 namespace bow.Application.Common.Interfaces;
 

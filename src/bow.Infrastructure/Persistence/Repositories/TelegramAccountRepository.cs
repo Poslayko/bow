@@ -1,5 +1,6 @@
 using bow.Application.Common.Interfaces;
 using bow.Domain.Entities;
+using bow.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace bow.Infrastructure.Persistence.Repositories;
@@ -26,7 +27,8 @@ public sealed class TelegramAccountRepository : ITelegramAccountRepository
     {
         return await _db.TelegramAccounts
             .Where(x => x.TelegramId == telegramId)
-            .Select(x => x.UserId)
+            .Select(x => (int?)x.UserId)
             .SingleOrDefaultAsync(token);
     }
+
 }

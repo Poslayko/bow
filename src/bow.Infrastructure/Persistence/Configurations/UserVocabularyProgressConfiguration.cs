@@ -10,6 +10,10 @@ public sealed class UserVocabularyProgressConfiguration : IEntityTypeConfigurati
     {
         builder.ToTable("user_vocabulary_progresses");
         builder.HasKey(x => x.Id);
+        builder.HasIndex(x => x.UserId)
+            .IsUnique()
+            .HasFilter("status = 1")
+            .HasDatabaseName("ux_user_vocabulary_progresses_waiting_answer");
         builder.HasIndex(x => new { x.UserId, x.VocabularyItemId })
             .IsUnique();
         builder.Property(x => x.Stage)

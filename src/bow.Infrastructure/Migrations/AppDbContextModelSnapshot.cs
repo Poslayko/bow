@@ -31,10 +31,9 @@ namespace bow.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
+                    b.Property<int>("State")
+                        .HasColumnType("integer")
+                        .HasColumnName("state");
 
                     b.Property<long>("TelegramId")
                         .HasColumnType("bigint")
@@ -43,6 +42,11 @@ namespace bow.Infrastructure.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("integer")
                         .HasColumnName("user_id");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("user_name");
 
                     b.HasKey("Id")
                         .HasName("pk_telegram_accounts");
@@ -120,6 +124,10 @@ namespace bow.Infrastructure.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("stage");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
                     b.Property<int>("UserId")
                         .HasColumnType("integer")
                         .HasColumnName("user_id");
@@ -130,6 +138,11 @@ namespace bow.Infrastructure.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_user_vocabulary_progresses");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_user_vocabulary_progresses_waiting_answer")
+                        .HasFilter("status = 1");
 
                     b.HasIndex("VocabularyItemId")
                         .HasDatabaseName("ix_user_vocabulary_progresses_vocabulary_item_id");

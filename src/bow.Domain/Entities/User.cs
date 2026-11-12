@@ -20,11 +20,11 @@ public class User
         DisplayName = displayName;
         RegisteredAt = DateTime.UtcNow;
     }
-    public static User RegisterUserAsATelegramMember(string? displayName, long telegramId)
+    public static User RegisterUserWithTelegramData(string? userName, long telegramId)
     {   
-        var user = new User(displayName)
+        var user = new User(userName)
         {
-            TelegramAccount = new TelegramAccount(telegramId)
+            TelegramAccount = new TelegramAccount(telegramId, userName)
         };
 
         return user;
@@ -41,5 +41,20 @@ public class User
         NativeLanguage = nativeLanguage;
         LearningLanguage = learningLanguage;
         LearningLevel = level;
+    }
+
+    public void SetNativeLanguage(LanguageCode nativeLanguage)
+    {
+        NativeLanguage = nativeLanguage;
+    }
+
+    public void SetLearningLanguage(LanguageCode learningLanguage)
+    {
+        LearningLanguage = learningLanguage;
+    }
+
+    public void SetLearningLevel(CefrLevel cefrLevel)
+    {
+        LearningLevel = cefrLevel;
     }
 }

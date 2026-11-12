@@ -1,4 +1,9 @@
 services:
+  api:
+    environment:
+      Telegram__BotToken: ${TELEGRAM_BOT_TOKEN}
+      Telegram__WebhookUrl: ${TELEGRAM_WEBHOOK_URL}
+      ConnectionStrings__DefaultConnection: ${BOW_CONNECTION_STRING}
   postgres:
     image: postgres:16
     container_name: bow-postgres
@@ -6,7 +11,7 @@ services:
     environment:
       POSTGRES_DB: bow
       POSTGRES_USER: bow
-      POSTGRES_PASSWORD: small_password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
     - "5432:5432"
     volumes:

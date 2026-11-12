@@ -1,12 +1,13 @@
 using bow.Infrastructure;
 using bow.Application;
-using bow.Api.Endpoints.Users;
 using bow.Api.Endpoints.ItemVocabulary;
 using System.Text.Json.Serialization;
 using bow.Api.Endpoints.VocabularyTranslations;
 using bow.Api.Common.ExceptionHandling;
 using bow.Api.Endpoints.UserVocabularyProgress;
-using bow.Api.Endpoints.Study;
+using Telegram.Bot.AspNetCore;
+
+DotNetEnv.Env.TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,18 +24,19 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+builder.Services.AddControllers();
+builder.Services.ConfigureTelegramBotMvc();
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
 
-app.MapRegisterUserEndpoint();
 app.MapAddVocabularyItemEndpoint();
 app.MapAddVocabularyTranslationEndpoint();
 app.MapGetVocabularyTranslationEndpoint();
 app.MapAddUserVocabularyProgressEndpoint();
-app.MapConfigureLearningUserEndpoint();
-app.MapPostNextStudyItemEndpoint();
-app.MapSubmitAnswerEndpoint();
+
+app.MapControllers();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

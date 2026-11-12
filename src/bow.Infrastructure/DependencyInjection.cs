@@ -1,9 +1,11 @@
 using bow.Application.Common.Interfaces;
 using bow.Infrastructure.Persistence;
 using bow.Infrastructure.Persistence.Repositories;
+using bow.Infrastructure.Telegram;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Telegram.Bot;
 
 namespace bow.Infrastructure;
 
@@ -29,7 +31,17 @@ public static class DependencyInjection
         services.AddScoped<IUserVocabularyProgressRepository, UserVocabularyProgressRepository>();
         services.AddScoped<IUnitOfWork>(
             provider => provider.GetRequiredService<AppDbContext>());
+
         services.AddScoped<ITelegramAccountRepository, TelegramAccountRepository>();
+        services.AddSingleton<ITelegramBotClient>(_ =>
+        {
+            var botToken = configuration["Telegram:BotToken"]
+                ?? throw new InvalidOperationException("Telegram bot token was not found.");
+
+            return new TelegramBotClient(botToken);
+        });
+        services.AddHostedService<TelegramWebhookInitializer>();
+        services.AddScoped<ITelegramMessageSender, TelegramMessageSender>();
 
         return services;
     }
