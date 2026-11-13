@@ -665,96 +665,38 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
 
         var _response = await _client.PostAsJsonAsync("/api/v1/telegram/webhook", update);
         
-        var updateWithNativeLanguage = TelegramUpdates.MessageWithPressedButton(
-            userName: userName, telegramId: telegramId, callbackData: "native-language:ua"
-        );
+        var firstUser = await db.Users
+            .Include(x => x.TelegramAccount)
+            .SingleAsync(x => x.TelegramAccount!.TelegramId == telegramId);
 
-        var _response2 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook", 
-            updateWithNativeLanguage);
-        
-        var updateWithLearningLanguage = TelegramUpdates.MessageWithPressedButton(
-            userName: userName, telegramId: telegramId, callbackData: "learning-language:nl"
-        );
+        Assert.NotNull(firstUser.TelegramAccount);
+        firstUser.SetNativeLanguage(LanguageCode.Ua);
+        firstUser.SetLearningLanguage(LanguageCode.Nl);
+        firstUser.SetLearningLevel(CefrLevel.A1);
+        firstUser.TelegramAccount.SetState(TelegramUserState.ChoosingInMenu);
 
-        var _response3 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook", 
-            updateWithLearningLanguage);
-
-        var updateWithCefrLevel = TelegramUpdates.MessageWithPressedButton(
-            userName: userName, telegramId: telegramId, callbackData: "learning-level:B1"
-        );
-
-        var _response4 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook",
-            updateWithCefrLevel);
+        await db.SaveChangesAsync();
 
         var updateWithStartLearning = TelegramUpdates.Message("📚 Start learning words", 
             telegramId, userName);
 
-        var _response5 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook",
+        var _response2 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook", 
             updateWithStartLearning);
 
-        var telegramAccount = await db.TelegramAccounts
+        var firstUserReloaded = await db.Users
             .AsNoTracking()
-            .Where(telegarmAccount => telegarmAccount.TelegramId == telegramId)
-            .Include(TelegramAccount => TelegramAccount.User)
-            .SingleOrDefaultAsync();
-        
-        Assert.NotNull(telegramAccount);
-        Assert.NotNull(telegramAccount.User);
+            .Include(x => x.TelegramAccount)
+            .SingleAsync(x => x.Id == firstUser.Id);
+        var userVocabularyProgress = await db.UserVocabularyProgresses
+            .SingleAsync(x => x.UserId == firstUser.Id);
 
-        var userVocabularyProgress = await GetProgressAsync(db, telegramAccount.UserId, 
-            UserVocabularyProgressStatus.waiting_answer); 
-
-        var getCorrectAnswer = db.VocabularyTranslations
-            .Where(x => 
-                x.TranslationFromId == userVocabularyProgress.VocabularyItemId
-                && x.TranslationTo.Language == LanguageCode.Ua)
-            .Select(x => x.TranslationTo.Text)
-            .FirstAsync();
-
-        var correctAnswer = await getCorrectAnswer;
-        
-        var updateWithCorrectAnswer = TelegramUpdates.Message(correctAnswer, 
-            telegramId, userName);
-
-        var _response6 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook",
-            updateWithCorrectAnswer);
-
-        await db.Entry(userVocabularyProgress).ReloadAsync();
-        await db.Entry(telegramAccount).ReloadAsync();
-
-        userVocabularyProgress.SetStage(LearningStage.After1Day);
-
-        var _startNextStudyItemHandler = TestDatabase.GetService<StartNextStudyItemHandler>(scope);
-
-        await _startNextStudyItemHandler.HandleAsync(telegramAccount.User, telegramAccount,
-            telegramAccount.TelegramId, CancellationToken.None);
-
-        var lastReviewedAt = DateTime.UtcNow.AddHours(-16);
-        var nextReviewAt = DateTime.UtcNow.AddHours(8);
-
-        var secondVocabularyItem = await GetProgressAsync(db, telegramAccount.UserId, UserVocabularyProgressStatus.waiting_answer);
-
-        secondVocabularyItem.SetStage(LearningStage.After1Day);
-        secondVocabularyItem.SetLastReviewedAt(lastReviewedAt);
-        secondVocabularyItem.SetNextReviewAt(nextReviewAt);
-        secondVocabularyItem.SetStatus(UserVocabularyProgressStatus.idle);
-
-        await db.SaveChangesAsync();
-
-        await _startNextStudyItemHandler.HandleAsync(telegramAccount.User, telegramAccount,
-            telegramAccount.TelegramId, CancellationToken.None);
-
-        var thirdVocabularyItem = await GetProgressAsync(db, telegramAccount.UserId, UserVocabularyProgressStatus.waiting_answer);
-
-        thirdVocabularyItem.SetStage(LearningStage.After1Day);
-        thirdVocabularyItem.SetLastReviewedAt(lastReviewedAt);
-        thirdVocabularyItem.SetNextReviewAt(nextReviewAt);
-        thirdVocabularyItem.SetStatus(UserVocabularyProgressStatus.idle);
-
-        await db.SaveChangesAsync();
-
-        userVocabularyProgress.SetStatus(UserVocabularyProgressStatus.waiting_answer);
-        await db.SaveChangesAsync();
+        Assert.NotNull(firstUserReloaded.TelegramAccount);
+        var firstUserTelegramState = firstUserReloaded.TelegramAccount.State;
+        var userVocabularyProgressId = userVocabularyProgress.Id;
+        var userVocabularyProgressStage = userVocabularyProgress.Stage;
+        var userVocabularyProgressLastReviewed = userVocabularyProgress.LastReviewedAt;
+        var userVocabularyProgressNextReview = userVocabularyProgress.NextReviewAt;
+        var userVocabularyProgressStatus = userVocabularyProgress.Status;
 
         var secondUserTelegramId = 12345;
         var secondUserName = "Anatoly";
@@ -768,28 +710,24 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
             .Include(x => x.TelegramAccount)
             .SingleAsync(x => x.TelegramAccount!.TelegramId == secondUserTelegramId);
 
+        Assert.NotNull(secondUser.TelegramAccount);
         secondUser.SetNativeLanguage(LanguageCode.Ua);
         secondUser.SetLearningLanguage(LanguageCode.Nl);
         secondUser.SetLearningLevel(CefrLevel.B1);
-
-        Assert.NotNull(secondUser.TelegramAccount);
-
         secondUser.TelegramAccount.SetState(TelegramUserState.ChoosingInMenu);
 
         await db.SaveChangesAsync();
 
-        await _startNextStudyItemHandler.HandleAsync(secondUser, secondUser.TelegramAccount,
-            secondUser.TelegramAccount.TelegramId, CancellationToken.None);
-
         var updateWithStartLearning2 = TelegramUpdates.Message("📚 Start learning words", 
             secondUserTelegramId, secondUserName);
 
-        var _response5_2 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook",
+        var _responseSecondUser_2 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook",
             updateWithStartLearning2);
 
         var userVocabularyProgress_2 = await db.UserVocabularyProgresses
             .SingleAsync(x => x.UserId == secondUser.Id);
 
+        Assert.NotNull(userVocabularyProgress);
         Assert.NotNull(userVocabularyProgress_2);
 
         var correctAnswer_2 = await db.VocabularyTranslations
@@ -802,14 +740,36 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
         var updateWithCorrectAnswer_2 = TelegramUpdates.Message(correctAnswer_2, 
             secondUserTelegramId, secondUserName);
 
-        var _response6_2 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook",
+        var _response3_2 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook",
             updateWithCorrectAnswer_2);
 
-        await db.Entry(userVocabularyProgress).ReloadAsync();
         await db.Entry(userVocabularyProgress_2).ReloadAsync();
 
-        Assert.Equal(UserVocabularyProgressStatus.waiting_answer, userVocabularyProgress.Status);
+        var userVocabularyProgressReloaded = await db.UserVocabularyProgresses
+            .AsNoTracking()
+            .SingleAsync(x => x.Id == userVocabularyProgress.Id);
+
+        var firstUserReloaded2 = await db.Users
+            .AsNoTracking()
+            .Include(x => x.TelegramAccount)
+            .SingleAsync(x => x.Id == firstUser.Id);
+
         Assert.Equal(UserVocabularyProgressStatus.idle, userVocabularyProgress_2.Status); 
+        Assert.Equal(LearningStage.FirstCorrect, userVocabularyProgress_2.Stage);
+        Assert.NotNull(userVocabularyProgress_2.LastReviewedAt);
+        Assert.NotNull(firstUserReloaded2.TelegramAccount);
+        Assert.Equal(firstUserTelegramState, 
+            firstUserReloaded2.TelegramAccount.State);
+
+        Assert.Equal(userVocabularyProgressId,
+            userVocabularyProgressReloaded.Id);
+        Assert.Equal(userVocabularyProgressStatus, 
+            userVocabularyProgressReloaded.Status);
+        Assert.Equal(userVocabularyProgressStage, userVocabularyProgressReloaded.Stage);
+        Assert.Equal(userVocabularyProgressLastReviewed, 
+            userVocabularyProgressReloaded.LastReviewedAt);
+        Assert.Equal(userVocabularyProgressNextReview,
+            userVocabularyProgressReloaded.NextReviewAt);
     }
 
     [Fact]
@@ -1022,5 +982,125 @@ public sealed class StudyFlowTests : IClassFixture<PostgresFixture>
             .ToListAsync();
 
         Assert.Empty(users);
+    }
+
+    [Fact]
+    public async Task TelegramStudy_AnswerWithoutWaitingProgress_RecoversWithoutChangingSrs()
+    {
+        var scope = _factory.Services.CreateScope();
+
+        await TestDatabase.ResetTables(scope);
+
+        var db = TestDatabase.GetService<AppDbContext>(scope);
+
+        await TestVocabulary.SeedAsync(db);
+
+        string firstMsg = "/start";
+        long telegramId = 1234567890;
+        string userName = "Fedr";
+        var update = TelegramUpdates.Message(firstMsg, telegramId, userName); 
+
+        _client.DefaultRequestHeaders.Add(
+            "X-Telegram-Bot-Api-Secret-Token", 
+            BowApiFactory.WebhookSecret);
+
+        var _response = await _client.PostAsJsonAsync("/api/v1/telegram/webhook", update);
+        
+        var updateWithNativeLanguage = TelegramUpdates.MessageWithPressedButton(
+            userName: userName, telegramId: telegramId, callbackData: "native-language:ua"
+        );
+
+        var _response2 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook", 
+            updateWithNativeLanguage);
+        
+        var updateWithLearningLanguage = TelegramUpdates.MessageWithPressedButton(
+            userName: userName, telegramId: telegramId, callbackData: "learning-language:nl"
+        );
+
+        var _response3 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook", 
+            updateWithLearningLanguage);
+
+        var updateWithCefrLevel = TelegramUpdates.MessageWithPressedButton(
+            userName: userName, telegramId: telegramId, callbackData: "learning-level:A1"
+        );
+
+        var _response4 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook",
+            updateWithCefrLevel);
+
+        var updateWithStartLearning = TelegramUpdates.Message("📚 Start learning words", 
+            telegramId, userName);
+
+        var _response5 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook",
+            updateWithStartLearning);
+
+        var telegramAccount = await db.TelegramAccounts
+            .AsNoTracking()
+            .Where(telegarmAccount => telegarmAccount.TelegramId == telegramId)
+            .Include(TelegramAccount => TelegramAccount.User)
+            .SingleOrDefaultAsync();
+
+        Assert.NotNull(telegramAccount);
+        Assert.NotNull(telegramAccount.User);
+
+        var vocabularyItemText = _sender.Messages[6].Text;
+
+        Assert.NotNull(vocabularyItemText);
+
+        var vocabularyProgress = await db.UserVocabularyProgresses
+            .Where(x => 
+                x.UserId == telegramAccount.User.Id
+                && x.VocabularyItem.Text == vocabularyItemText)
+            .SingleAsync();
+
+        vocabularyProgress.SetStatus(UserVocabularyProgressStatus.idle);
+
+        await db.SaveChangesAsync();
+
+        await db.Entry(vocabularyProgress).ReloadAsync();
+
+        Assert.Equal(UserVocabularyProgressStatus.idle, vocabularyProgress.Status);
+        Assert.Equal(TelegramUserState.SubmitAnswer, telegramAccount.State);
+        
+        var translation = await db.VocabularyTranslations
+            .Include(x => x.TranslationTo)
+            .SingleAsync(x => x.TranslationFromId == vocabularyProgress.VocabularyItemId);
+
+        var updateWithCorrectAnswer = TelegramUpdates.Message(
+            translation.TranslationTo.Text,
+            telegramId,
+            userName
+        );
+
+        var _response6 = await _client.PostAsJsonAsync("/api/v1/telegram/webhook",
+            updateWithCorrectAnswer);
+
+        Assert.Equal("Something went wrong, waiting vocabulary item wasn't found",
+            _sender.Messages[7].Text);
+
+        using var verificationScope = _factory.Services.CreateScope();
+        var db2 = TestDatabase.GetService<AppDbContext>(verificationScope);
+
+        var vocabularyProgressReloaded = await db2.UserVocabularyProgresses
+            .Where(x =>
+                x.UserId == telegramAccount.User.Id
+                && x.VocabularyItem.Text == vocabularyItemText)
+            .SingleAsync();
+
+        var telegramAccountReloaded = await db2.TelegramAccounts
+            .Where(x => x.TelegramId == telegramId)
+            .SingleAsync();
+
+        Assert.Equal(UserVocabularyProgressStatus.waiting_answer, 
+            vocabularyProgressReloaded.Status);
+        Assert.Equal(LearningStage.NotStarted, vocabularyProgressReloaded.Stage);
+        Assert.Equal(TelegramUserState.SubmitAnswer, telegramAccountReloaded.State);
+        Assert.Equal(vocabularyProgress.LastReviewedAt, 
+            vocabularyProgressReloaded.LastReviewedAt);
+        Assert.Equal(vocabularyProgress.NextReviewAt, 
+            vocabularyProgressReloaded.NextReviewAt);
+        Assert.Equal(1, 
+            await db2.UserVocabularyProgresses.CountAsync(x => 
+                x.UserId == telegramAccountReloaded.UserId));
+        Assert.Equal(vocabularyItemText, _sender.Messages[8].Text);
     }
 } 
